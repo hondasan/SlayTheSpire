@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlaytheSpire</title>
+    <meta name="description" content="ブラウザで遊べるSlay the Spireライクなローグライクデッキビルディングカードゲーム">
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- タイトル画面 -->
+    <div id="title-screen" class="screen active">
+        <div class="title-bg"></div>
+        <div class="title-content">
+            <h1 class="game-title">SLAY THE SPIRE</h1>
+            <p class="game-subtitle">〜 尖塔への挑戦 〜</p>
+            <div class="title-menu">
+                <button id="btn-new-game" class="menu-btn">新しいゲーム</button>
+                <button id="btn-continue" class="menu-btn" style="display:none;">続きから</button>
+            </div>
+        </div>
+        <div class="title-particles" id="title-particles"></div>
+    </div>
+
+    <!-- マップ画面 -->
+    <div id="map-screen" class="screen">
+        <div class="map-header">
+            <div class="player-info-bar">
+                <div class="player-hp-display">
+                    <span class="hp-icon">❤️</span>
+                    <span id="map-hp">80</span>/<span id="map-max-hp">80</span>
+                </div>
+                <div class="player-gold-display">
+                    <span class="gold-icon">💰</span>
+                    <span id="map-gold">99</span>
+                </div>
+                <div class="floor-display">
+                    <span>Act <span id="map-act">1</span> - Floor <span id="map-floor">1</span></span>
+                </div>
+            </div>
+            <div class="map-buttons">
+                <button id="btn-deck-view" class="icon-btn" title="デッキ表示">🃏</button>
+                <button id="btn-relic-view" class="icon-btn" title="レリック表示">🏺</button>
+                <button id="btn-potion-view" class="icon-btn" title="ポーション表示">🧪</button>
+                <button id="btn-settings" class="icon-btn" title="設定">⚙️</button>
+            </div>
+        </div>
+        <div class="map-container" id="map-container">
+            <canvas id="map-canvas"></canvas>
+            <div id="map-nodes"></div>
+        </div>
+        <div class="act-title" id="act-title">Act 1 - 塔の麓</div>
+    </div>
+
+    <!-- 戦闘画面 -->
+    <div id="combat-screen" class="screen">
+        <div class="combat-bg" id="combat-bg"></div>
+        <div class="combat-header">
+            <div class="combat-info">
+                <div class="player-combat-hp">
+                    <span class="hp-icon">❤️</span>
+                    <span id="combat-hp">80</span>/<span id="combat-max-hp">80</span>
+                </div>
+                <div class="block-display" id="block-display" style="display:none;">
+                    <span class="block-icon">🛡️</span>
+                    <span id="combat-block">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 敵エリア -->
+        <div class="enemies-area" id="enemies-area"></div>
+
+        <!-- プレイヤーエリア -->
+        <div class="player-area">
+            <div class="player-character" id="player-character">
+                <div class="player-sprite"></div>
+                <div class="player-hp-bar-container">
+                    <div class="hp-bar-bg">
+                        <div class="hp-bar-fill" id="player-hp-bar"></div>
+                        <div class="hp-bar-block" id="player-block-bar"></div>
+                    </div>
+                    <span class="hp-text" id="player-hp-text">80/80</span>
+                </div>
+                <div class="player-buffs" id="player-buffs"></div>
+            </div>
+        </div>
+
+        <!-- エネルギー表示 -->
+        <div class="energy-orb" id="energy-orb">
+            <span class="energy-current" id="energy-current">3</span>
+            <span class="energy-divider">/</span>
+            <span class="energy-max" id="energy-max">3</span>
+        </div>
+
+        <!-- カード手札エリア -->
+        <div class="hand-area" id="hand-area"></div>
+
+        <!-- ターン終了ボタン -->
+        <button id="btn-end-turn" class="end-turn-btn">ターン終了</button>
+
+        <!-- ドローパイル -->
+        <div class="draw-pile" id="draw-pile">
+            <span class="pile-icon">📚</span>
+            <span class="pile-count" id="draw-count">5</span>
+        </div>
+
+        <!-- 捨て札 -->
+        <div class="discard-pile" id="discard-pile">
+            <span class="pile-icon">📋</span>
+            <span class="pile-count" id="discard-count">0</span>
+        </div>
+
+        <!-- ポーションスロット -->
+        <div class="potion-slots" id="potion-slots"></div>
+    </div>
+
+    <!-- 報酬画面 -->
+    <div id="reward-screen" class="screen">
+        <div class="reward-overlay">
+            <div class="reward-panel">
+                <h2>戦闘報酬</h2>
+                <div class="reward-list" id="reward-list"></div>
+                <button id="btn-reward-skip" class="reward-skip-btn">スキップ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- カード選択画面 -->
+    <div id="card-reward-screen" class="screen">
+        <div class="card-reward-overlay">
+            <div class="card-reward-panel">
+                <h2>カードを1枚選択</h2>
+                <div class="card-reward-list" id="card-reward-list"></div>
+                <button id="btn-card-skip" class="reward-skip-btn">スキップ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 焚き火画面 -->
+    <div id="rest-screen" class="screen">
+        <div class="rest-overlay">
+            <div class="rest-panel">
+                <div class="campfire-animation" id="campfire"></div>
+                <h2>焚き火</h2>
+                <div class="rest-options">
+                    <button id="btn-rest" class="rest-btn rest-heal">
+                        <span class="rest-icon">💤</span>
+                        <span>休憩</span>
+                        <span class="rest-desc">HPを30%回復</span>
+                    </button>
+                    <button id="btn-smith" class="rest-btn rest-upgrade">
+                        <span class="rest-icon">⚒️</span>
+                        <span>鍛冶</span>
+                        <span class="rest-desc">カードを1枚アップグレード</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- カードアップグレード選択画面 -->
+    <div id="upgrade-screen" class="screen">
+        <div class="upgrade-overlay">
+            <div class="upgrade-panel">
+                <h2>アップグレードするカードを選択</h2>
+                <div class="upgrade-card-list" id="upgrade-card-list"></div>
+                <button id="btn-upgrade-cancel" class="reward-skip-btn">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ショップ画面 -->
+    <div id="shop-screen" class="screen">
+        <div class="shop-overlay">
+            <div class="shop-panel">
+                <h2>🏪 ショップ</h2>
+                <div class="shop-gold">💰 <span id="shop-gold">0</span></div>
+                <div class="shop-section">
+                    <h3>カード</h3>
+                    <div class="shop-cards" id="shop-cards"></div>
+                </div>
+                <div class="shop-section">
+                    <h3>レリック</h3>
+                    <div class="shop-relics" id="shop-relics"></div>
+                </div>
+                <div class="shop-section">
+                    <h3>ポーション</h3>
+                    <div class="shop-potions" id="shop-potions"></div>
+                </div>
+                <div class="shop-section">
+                    <button id="btn-remove-card" class="shop-remove-btn">カード削除（75💰）</button>
+                </div>
+                <button id="btn-shop-leave" class="reward-skip-btn">立ち去る</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- イベント画面 -->
+    <div id="event-screen" class="screen">
+        <div class="event-overlay">
+            <div class="event-panel">
+                <div class="event-image" id="event-image"></div>
+                <h2 id="event-title">イベント</h2>
+                <p id="event-description" class="event-desc"></p>
+                <div class="event-choices" id="event-choices"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 宝箱画面 -->
+    <div id="treasure-screen" class="screen">
+        <div class="treasure-overlay">
+            <div class="treasure-panel">
+                <div class="treasure-chest" id="treasure-chest">🎁</div>
+                <h2>宝箱を発見！</h2>
+                <div id="treasure-content"></div>
+                <button id="btn-treasure-take" class="menu-btn">受け取る</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- デッキ表示モーダル -->
+    <div id="deck-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>デッキ</h2>
+                <button class="modal-close" id="btn-deck-close">✕</button>
+            </div>
+            <div class="modal-body" id="deck-card-list"></div>
+        </div>
+    </div>
+
+    <!-- レリック表示モーダル -->
+    <div id="relic-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>レリック</h2>
+                <button class="modal-close" id="btn-relic-close">✕</button>
+            </div>
+            <div class="modal-body" id="relic-list-modal"></div>
+        </div>
+    </div>
+
+    <!-- ゲームオーバー画面 -->
+    <div id="gameover-screen" class="screen">
+        <div class="gameover-overlay">
+            <div class="gameover-panel">
+                <h2 id="gameover-title">ゲームオーバー</h2>
+                <div class="gameover-stats" id="gameover-stats"></div>
+                <button id="btn-retry" class="menu-btn">リトライ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 勝利画面 -->
+    <div id="victory-screen" class="screen">
+        <div class="victory-overlay">
+            <div class="victory-panel">
+                <h2>🏆 尖塔を制覇！</h2>
+                <div class="victory-stats" id="victory-stats"></div>
+                <button id="btn-victory-retry" class="menu-btn">もう一度</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ダメージポップアップコンテナ -->
+    <div id="popup-container"></div>
+
+    <!-- カードターゲット選択用ライン -->
+    <svg id="target-line" class="target-line-svg">
+        <line id="target-line-el" x1="0" y1="0" x2="0" y2="0" />
+    </svg>
+
+    <!-- カード削除選択画面 -->
+    <div id="card-remove-screen" class="screen">
+        <div class="upgrade-overlay">
+            <div class="upgrade-panel">
+                <h2>削除するカードを選択</h2>
+                <div class="upgrade-card-list" id="remove-card-list"></div>
+                <button id="btn-remove-cancel" class="reward-skip-btn">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="sprites.js"></script>
+    <script src="audio.js"></script>
+    <script src="cards.js"></script>
+    <script src="enemies.js"></script>
+    <script src="relics.js"></script>
+    <script src="events.js"></script>
+    <script src="map.js"></script>
+    <script src="combat.js"></script>
+    <script src="ui.js"></script>
+    <script src="game.js"></script>
+</body>
+
+</html>
