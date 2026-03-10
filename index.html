@@ -50,6 +50,8 @@
                 <button id="btn-settings" class="icon-btn" title="設定">⚙️</button>
             </div>
         </div>
+        <!-- レリックバー（マップ画面） -->
+        <div class="relic-bar" id="map-relic-bar"></div>
         <div class="map-container" id="map-container">
             <canvas id="map-canvas"></canvas>
             <div id="map-nodes"></div>
@@ -60,6 +62,12 @@
     <!-- 戦闘画面 -->
     <div id="combat-screen" class="screen">
         <div class="combat-bg" id="combat-bg"></div>
+
+        <!-- ターンバナー -->
+        <div class="turn-banner" id="turn-banner">
+            <span class="turn-banner-text" id="turn-banner-text"></span>
+        </div>
+
         <div class="combat-header">
             <div class="combat-info">
                 <div class="player-combat-hp">
@@ -71,24 +79,30 @@
                     <span id="combat-block">0</span>
                 </div>
             </div>
+            <!-- レリックバー（戦闘画面） -->
+            <div class="relic-bar" id="combat-relic-bar"></div>
+            <!-- ポーションスロット -->
+            <div class="potion-slots" id="potion-slots"></div>
         </div>
 
-        <!-- 敵エリア -->
-        <div class="enemies-area" id="enemies-area"></div>
-
-        <!-- プレイヤーエリア -->
-        <div class="player-area">
-            <div class="player-character" id="player-character">
-                <div class="player-sprite"></div>
-                <div class="player-hp-bar-container">
-                    <div class="hp-bar-bg">
-                        <div class="hp-bar-fill" id="player-hp-bar"></div>
-                        <div class="hp-bar-block" id="player-block-bar"></div>
+        <!-- 戦闘フィールド：プレイヤー左 / 敵右 -->
+        <div class="combat-field">
+            <!-- プレイヤー側 -->
+            <div class="player-side">
+                <div class="player-character" id="player-character">
+                    <div class="player-sprite"></div>
+                    <div class="player-hp-bar-container">
+                        <div class="hp-bar-bg">
+                            <div class="hp-bar-fill" id="player-hp-bar"></div>
+                            <div class="hp-bar-block" id="player-block-bar"></div>
+                        </div>
+                        <span class="hp-text" id="player-hp-text">80/80</span>
                     </div>
-                    <span class="hp-text" id="player-hp-text">80/80</span>
+                    <div class="player-buffs" id="player-buffs"></div>
                 </div>
-                <div class="player-buffs" id="player-buffs"></div>
             </div>
+            <!-- 敵側 -->
+            <div class="enemies-area" id="enemies-area"></div>
         </div>
 
         <!-- エネルギー表示 -->
@@ -115,9 +129,6 @@
             <span class="pile-icon">📋</span>
             <span class="pile-count" id="discard-count">0</span>
         </div>
-
-        <!-- ポーションスロット -->
-        <div class="potion-slots" id="potion-slots"></div>
     </div>
 
     <!-- 報酬画面 -->

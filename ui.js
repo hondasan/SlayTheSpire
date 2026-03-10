@@ -12,6 +12,37 @@ const UI = (() => {
         return '<img src="' + uri + '" class="' + className + '" style="width:100%;height:100%;object-fit:contain;image-rendering:pixelated">';
     }
 
+    // Render relic bar (map + combat)
+    function renderRelicBar(gameState, containerId) {
+        const container = $(containerId);
+        if (!container) return;
+        container.innerHTML = '';
+        for (const relic of gameState.relics) {
+            const item = document.createElement('div');
+            item.className = 'relic-bar-item';
+            item.title = relic.name + ': ' + relic.description;
+            item.innerHTML = getSpriteImg(relic.sprite) || relic.emoji || '?';
+            container.appendChild(item);
+        }
+    }
+
+    // Show turn banner
+    function showTurnBanner(isPlayerTurn) {
+        const banner = $('turn-banner');
+        const text = $('turn-banner-text');
+        if (!banner || !text) return;
+
+        banner.classList.remove('active', 'enemy-turn');
+        // Force reflow for re-animation
+        void banner.offsetWidth;
+
+        text.textContent = isPlayerTurn ? 'YOUR TURN' : 'ENEMY TURN';
+        if (!isPlayerTurn) banner.classList.add('enemy-turn');
+        banner.classList.add('active');
+
+        setTimeout(() => banner.classList.remove('active', 'enemy-turn'), 1600);
+    }
+
 
     // Show/hide screens
     function showScreen(screenId) {
@@ -58,6 +89,9 @@ const UI = (() => {
         if (gameState.map) {
             renderMap(gameState.map, canvas, nodesContainer);
         }
+
+        // Render relic bar on map
+        renderRelicBar(gameState, 'map-relic-bar');
     }
 
     // ==========================================
@@ -106,6 +140,9 @@ const UI = (() => {
 
         // Render potions
         renderPotions(gameState, combatState);
+
+        // Render relic bar in combat
+        renderRelicBar(gameState, 'combat-relic-bar');
 
         // End turn button state
         $('btn-end-turn').disabled = !combatState.isPlayerTurn;
@@ -991,6 +1028,7 @@ const UI = (() => {
         set targetMode(v) { targetMode = v; },
         get selectedCard() { return selectedCard; },
         set selectedCard(v) { selectedCard = v; },
-        highlightTargetableEnemies
+        highlightTargetableEnemies,
+        showTurnBanner
     };
 })();

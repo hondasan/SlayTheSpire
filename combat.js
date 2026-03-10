@@ -123,6 +123,7 @@ const CombatManager = (() => {
         }
 
         UI.updateCombat(gameState, state);
+        UI.showTurnBanner(true);
     }
 
     function drawCards(gameState, count) {
@@ -683,7 +684,8 @@ const CombatManager = (() => {
 
         // Enemy turns
         UI.updateCombat(gameState, state);
-        setTimeout(() => executeEnemyTurns(gameState), 600);
+        UI.showTurnBanner(false);
+        setTimeout(() => executeEnemyTurns(gameState), 800);
     }
 
     function executeEnemyTurns(gameState) {
